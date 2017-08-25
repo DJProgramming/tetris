@@ -6,6 +6,9 @@ Game based on efficiently stacking blocks of different shapes and colors into a 
 
 <br>
 
+<img src="./images/tetris-wireframe.jpg"/>
+<img src="./images/piece-root-cell-mapping.jpg"/>
+
 ## Technologies Used
 
 - HTML

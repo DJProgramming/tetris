@@ -207,6 +207,7 @@ var tetrisControl = {
   currentDropFrame: 0,
   dropTimingRate: 4,
   pieceInPlay: '',
+  lockSound: new Audio('./audio/click.mp3'),
   currentTimeout: '',
   currentRootCell: 4,
   rowsDestroyed: 0,
@@ -557,7 +558,7 @@ var dropPiece = function() {
       tetrisControl.isMoving = false;
 
       clearTimeout(tetrisControl.currentTimeout);
-
+      // tetrisControl.lockSound.play();
       resetTimingInterval();
     }
   }
