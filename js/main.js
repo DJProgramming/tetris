@@ -4,6 +4,12 @@ $(function() {
   console.log(height);
   $('body').height(`${height}`);
 
+  setBoardsize();
+
+  $(window).resize(() => {
+    // alert('resize')
+    resizeBoard();
+  })
+
   setupGame();
-  // gameLoop();
 })

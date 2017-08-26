@@ -89,9 +89,9 @@ var tetrisPieceTypes = {
     },
     bottomCells: {
       one: [-1, 10, 11],
-      two: [9, 0],
+      two: [0, 9],
       three: [-1, 10, 11],
-      four: [9, 0]
+      four: [0, 9]
     },
     leftCells: {
       one: [-1, 10],
@@ -203,7 +203,7 @@ var tetrisControl = {
   numberOfCells: 220,
   numberOfColumns: 10,
   cellSize: 40,
-  timingInterval: 400,
+  timingInterval: 200,
   currentDropFrame: 0,
   dropTimingRate: 4,
   pieceInPlay: '',
@@ -220,34 +220,37 @@ var tetrisControl = {
   keysPressed: {}
 }
 
+var setBoardsize = function() {
+  var screenHeight = $(window).height();
+  var boardHeight = Math.floor(screenHeight * 0.7);
+  tetrisControl.cellSize = Math.floor(boardHeight / 20);
+  console.log('board-height: ', boardHeight);
+}
+
 // used to recalculate the dimensions of the board and display updated board when window is resized
 var resizeBoard = function() {
-  var width = $('body').width();
-  console.log(width);
-  if(width < 500) {
-    $('.cell').css('width', '30px').css('height', '30px');
-    $('.board').css('width', `300px`);
-  }
-  else $('.cell').css('width', `${tetrisControl.cellSize}px`).css('height', `${tetrisControl.cellSize}px`);
-  $('.board').css('width', `400px`);
+  setBoardsize();
+  $('.board').css('width', tetrisControl.cellSize * tetrisControl.numberOfColumns).css('height', tetrisControl.cellSize * tetrisControl.numberOfColumns * 2);
+  $('.cell').css('width', `${tetrisControl.cellSize}`).css('height', `${tetrisControl.cellSize}`);
 }
 
 var initializeCellArray = function() {
-  for(let i = 0; i < tetrisControl.numberOfCells; i++) {
-    tetrisControl.cellArray[i] = 0;
-  }
+  for(let i = 0; i < tetrisControl.numberOfCells; i++) tetrisControl.cellArray[i] = 0;
 }
 
 var tetrisLogo = function() {
+  var $logoContainer = $('<div class="logo-container">');
   var $logo = $('<h1 id="tetris">Tetris</h1>').css('display', 'block');
-  $('body').prepend($logo);
+  $logoContainer.append($logo);
+  $('body').prepend($logoContainer);
 }
 
 var createPhysicalGrid = function() {
   var $board = $('<div class="board">');
   $board.css('width', `${tetrisControl.cellSize * tetrisControl.numberOfColumns}px`);
   for(let i = 0; i < tetrisControl.numberOfCells; i++) {
-    var $cell = $(`<div id="cell${i}" class="cell">${i}</div>`).css('width', `${tetrisControl.cellSize}`).css('height', `${tetrisControl.cellSize}`);
+    // var $cell = $(`<div id="cell${i}" class="cell">${i}</div>`).css('width', `${tetrisControl.cellSize}`).css('height', `${tetrisControl.cellSize}`);
+    var $cell = $(`<div id="cell${i}" class="cell"></div>`).css('width', `${tetrisControl.cellSize}`).css('height', `${tetrisControl.cellSize}`);
     $cell.css('color', 'white');
     $board.append($cell);
   }
@@ -272,7 +275,7 @@ var start = function() {
 var reset = function() {
   clearBoard();
   initializeCellArray();
-  clearTimeout(tetrisControl.currentTimeout);
+  // clearTimeout(tetrisControl.currentTimeout);
   tetrisControl.rowsDestroyed = 0;
   $('#row-score-display').text('0');
 }
@@ -465,7 +468,7 @@ var destroyRow = function() {
       for(let cell = 0; cell < 10; cell++) {
         emptyCell(i+cell);
         // tetrisControl.cellArray[i+cell] = 3;
-        emptyCell(i+cell);
+        // emptyCell(i+cell);
       }
       tetrisControl.rowsDestroyed++;
       $('#row-score-display').text(tetrisControl.rowsDestroyed);
@@ -528,11 +531,15 @@ var topReached = function() {
 }
 
 var resetTimingInterval = function() {
-  tetrisControl.timingInterval = 400;
+  tetrisControl.timingInterval = 200;
 }
 
 var increaseTimingInterval = function() {
-  tetrisControl.timingInterval = 100;
+  tetrisControl.timingInterval = 50;
+}
+
+var resetRootCell = function() {
+  tetrisControl.currentRootCell = 4;
 }
 
 var dropPiece = function() {
@@ -566,7 +573,12 @@ var dropPiece = function() {
       for(let i = 0; i < 4; i++) {
         deactivateCell(eval(`tetrisControl.currentRootCell+tetrisPieceTypes.${type}.offsets.${orientation}[${i}]`));
       }
-      tetrisControl.currentRootCell += 10;
+      if(tetrisControl.currentDropFrame === tetrisControl.dropTimingRate) {
+        tetrisControl.currentDropFrame = 0;
+        tetrisControl.currentRootCell += 10;
+      }
+      tetrisControl.currentDropFrame++;
+
       if(tetrisControl.shiftLeft) {
         shiftLeft();
       } else if(tetrisControl.shiftRight) {
@@ -591,7 +603,7 @@ var generateRandomPiece = function() {
 }
 
 var createNewPiece = function() {
-  tetrisControl.currentRootCell = 4;
+  resetRootCell();
   tetrisControl.pieceInPlay = generateRandomPiece();
 }
 
@@ -602,15 +614,12 @@ var gameLoop = function() {
     destroyRow();
     dropPiece();
   } else {
-
     $(document).on('swipeleft', function() {
       tetrisControl.shiftLeft = true;
     })
-
     $(document).on('swiperight', function() {
       tetrisControl.shiftRight = true;
     })
-
     $(document).keydown(function(k) {
       console.log(k.keyCode);
 
