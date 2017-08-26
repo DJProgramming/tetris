@@ -172,7 +172,7 @@ var tetrisPieceTypes = {
       one: [-1, 1, 10],
       two: [-1, 10],
       three: [-1, 0, 1],
-      four: [-1, 10]
+      four: [1, 10]
     },
     leftCells: {
       one: [-1, 10],
@@ -220,6 +220,7 @@ var tetrisControl = {
   keysPressed: {}
 }
 
+// used to recalculate the dimensions of the board and display updated board when window is resized
 var resizeBoard = function() {
   var width = $('body').width();
   console.log(width);
@@ -272,6 +273,7 @@ var reset = function() {
   clearBoard();
   clearTimeout(tetrisControl.currentTimeout);
   tetrisControl.rowsDestroyed = 0;
+  $('#row-score-display').text('0');
 }
 
 var createMenu = function() {
@@ -609,11 +611,13 @@ var gameLoop = function() {
   } else {
 
     $(document).keydown(function(k) {
+      console.log(k.keyCode);
+
       if(tetrisControl.keysPressed[k.keyCode] === false) return;
       tetrisControl.keysPressed[k.keyCode] = false;
       // when r key is pressed
-      if(k.keyCode === 82) {
-        console.log("r");
+      if(k.keyCode === 82 || k.keyCode === 32) {
+        console.log("rotate");
 
         if(!rotateCollisions()) {
           rotate();
