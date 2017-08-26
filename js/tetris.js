@@ -271,6 +271,7 @@ var start = function() {
 
 var reset = function() {
   clearBoard();
+  initializeCellArray();
   clearTimeout(tetrisControl.currentTimeout);
   tetrisControl.rowsDestroyed = 0;
   $('#row-score-display').text('0');
@@ -321,12 +322,6 @@ var setupGame = function() {
       })
     }
   }
-
-  // $('.board').on('click', function() {
-  //   if(!rotateCollisions()) {
-  //     rotate();
-  //   }
-  // })
 }
 
 var activateCell = function(number, color) {
@@ -468,8 +463,8 @@ var destroyRow = function() {
     }
     if(count === 10) {
       for(let cell = 0; cell < 10; cell++) {
-        // emptyCell(i+cell);
-        tetrisControl.cellArray[i+cell] = 3;
+        emptyCell(i+cell);
+        // tetrisControl.cellArray[i+cell] = 3;
         emptyCell(i+cell);
       }
       tetrisControl.rowsDestroyed++;
@@ -483,8 +478,6 @@ var shiftLeft = function() {
   var canShiftLeft = true;
   var type = tetrisControl.pieceInPlay.type;
   var orientation = tetrisControl.pieceInPlay.orientation;
-  // console.log(type);
-  // console.log(orientation);
   for(let i = 0; i < eval(`tetrisPieceTypes.${type}.leftCells.${orientation}`).length; i++) {
     if(cellFull(tetrisControl.currentRootCell + eval(`tetrisPieceTypes.${type}.leftCells.${orientation}[${i}]`)-1) || (tetrisControl.currentRootCell + eval(`tetrisPieceTypes.${type}.leftCells.${orientation}[${i}]`))%10 === 0) {
       canShiftLeft = false;
@@ -530,9 +523,7 @@ var rotate = function() {
 }
 
 var topReached = function() {
-  for(let i = 20; i < 30; i++) {
-    if(tetrisControl.cellArray[i] === 2) return true;
-  }
+  for(let i = 20; i < 30; i++) if(tetrisControl.cellArray[i] === 2) return true;
   return false;
 }
 
@@ -552,7 +543,10 @@ var dropPiece = function() {
   var orientation = tetrisControl.pieceInPlay.orientation;
   var bottomCellsArray = eval(`tetrisPieceTypes.${tetrisControl.pieceInPlay.type}.bottomCells.${tetrisControl.pieceInPlay.orientation}`);
 
-  if(topReached()) clearTimeout(tetrisControl.currentTimeout);
+  if(topReached()) {
+    clearTimeout(tetrisControl.currentTimeout);
+    return;
+  }
 
   for(let i = 0; i < bottomCellsArray.length; i++) {
     if(cellFull(bottomCellsArray[i]+tetrisControl.currentRootCell+10) || (bottomCellsArray[i]+tetrisControl.currentRootCell) >= tetrisControl.numberOfCells-10) {
@@ -560,7 +554,6 @@ var dropPiece = function() {
       tetrisControl.isMoving = false;
 
       clearTimeout(tetrisControl.currentTimeout);
-      // tetrisControl.lockSound.play();
       resetTimingInterval();
     }
   }
@@ -610,12 +603,20 @@ var gameLoop = function() {
     dropPiece();
   } else {
 
+    $(document).on('swipeleft', function() {
+      tetrisControl.shiftLeft = true;
+    })
+
+    $(document).on('swiperight', function() {
+      tetrisControl.shiftRight = true;
+    })
+
     $(document).keydown(function(k) {
       console.log(k.keyCode);
 
       if(tetrisControl.keysPressed[k.keyCode] === false) return;
       tetrisControl.keysPressed[k.keyCode] = false;
-      // when r key is pressed
+      // when r key or spacebar is pressed
       if(k.keyCode === 82 || k.keyCode === 32) {
         console.log("rotate");
 
@@ -625,22 +626,20 @@ var gameLoop = function() {
       }
       // when left arrow is pressed
       if(k.keyCode === 37) {
-        // console.log("left");
+        tetrisControl.keysPressed[k.keyCode] = true;
         tetrisControl.shiftLeft = true;
       }
       // when right arrow is pressed
       else if (k.keyCode === 39) {
-        // console.log("right");
+        tetrisControl.keysPressed[k.keyCode] = true;
         tetrisControl.shiftRight = true;
       }
       // when down arrow is pressed
       else if (k.keyCode === 40) {
-        // console.log("down");
         increaseTimingInterval();
       }
       // when up arrow is pressed
       else if (k.keyCode === 38) {
-        // console.log("up");
         resetTimingInterval();
       }
     });
