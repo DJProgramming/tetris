@@ -240,8 +240,8 @@ var createMenu = function() {
 
   var $startButton = $('<button id="start" class="menu-button">').text('Start').css('width', '8em').css('height', `${tetrisControl.screenHeight * 0.06}px`);
   $menu.append($startButton);
-  var $pauseButton = $('<button id="pause">').text('Pause').css('width', '8em').css('height', '4em');
-  $menu.append($pauseButton);
+  // var $pauseButton = $('<button id="pause">').text('Pause').css('width', '8em').css('height', '4em');
+  // $menu.append($pauseButton);
   var $rows = $('<div id="row-score-display" class="menu-display">0</div>').css('height', `${tetrisControl.screenHeight * 0.05}px`).css('fontSize', `${tetrisControl.screenHeight * 0.04}px`);
   $menu.append($rows);
 
@@ -251,7 +251,7 @@ var createMenu = function() {
   $('body').append($menu);
 
   $('#start').on('click', start);
-  $('#pause').on('click', pause);
+  // $('#pause').on('click', pause);
   $('#reset').on('click', reset);
   // gameLoop();
 }
